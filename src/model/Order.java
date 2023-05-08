@@ -3,6 +3,7 @@ package model;
 import model.order_position.OrderPosition;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 public class Order {
@@ -24,14 +25,16 @@ public class Order {
         return positions
                 .stream()
                 .map(OrderPosition::totalPrice)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
     }
 
     public BigDecimal totalDiscount() {
         return positions
                 .stream()
                 .map(position -> position.getProduct().getPrice().multiply(position.getDiscount()))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .setScale(2, RoundingMode.HALF_UP);
     }
 
     @Override
