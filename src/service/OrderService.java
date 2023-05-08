@@ -7,7 +7,9 @@ import parser.Parser;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 public class OrderService {
     private List<Order> orders;
@@ -24,5 +26,34 @@ public class OrderService {
         return orders.stream()
                 .filter(predicate)
                 .toList();
+    }
+
+    public List<Order> getCheapestOrders() {
+        return orders
+                .stream()
+                .collect(Collectors.groupingBy(Order::totalPrice))
+                .entrySet()
+                .stream()
+                .min(Map.Entry.comparingByKey())
+                .orElseThrow()
+                .getValue();
+    }
+
+    public List<Order> getMostExpensiveOrders() {
+        return orders
+                .stream()
+                .collect(Collectors.groupingBy(Order::totalPrice))
+                .entrySet()
+                .stream()
+                .max(Map.Entry.comparingByKey())
+                .orElseThrow()
+                .getValue();
+    }
+
+    public BigDecimal getAveragePrice() {
+        return orders.stream()
+                .map(Order::totalPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add)
+                .divide(BigDecimal.valueOf(orders.size()), 2, RoundingMode.HALF_UP);
     }
 }
